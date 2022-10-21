@@ -11,14 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 
-@Validated
 @Controller
 public class MainController {
 
@@ -70,15 +67,6 @@ public class MainController {
         return "addUser";
     }
 
-    @RequestMapping(value = "/users/add", method = RequestMethod.POST)
-    public String addUser(User user, BindingResult result) {
-        if (result.hasErrors()) {
-            return "addUser";
-        }
-
-        userService.save(user);
-        return "redirect:/users";
-    }
 
     @RequestMapping(value = "/users/delete/{id}", method = RequestMethod.POST)
     public String deleteUser(@PathVariable("id") int id) {
@@ -121,14 +109,7 @@ public class MainController {
         return "addPhone";
     }
 
-    @RequestMapping(value = "/phones/add", method = RequestMethod.POST)
-    public String addPhone(Phone phone, BindingResult result) {
-        if (result.hasErrors()) {
-            return "addPhone";
-        }
-        phoneService.save(phone);
-        return "redirect:/phones";
-    }
+
 
     @RequestMapping(value = "/phones/delete/{id}", method = RequestMethod.POST)
     public String deletePhone(@PathVariable("id") int id) {
@@ -170,13 +151,34 @@ public class MainController {
         return "addCar";
     }
 
-    @RequestMapping(value = "/cars/add", method = RequestMethod.POST)
-    public String addCar(Car car, BindingResult result) {
-        if (result.hasErrors()) {
+    @PostMapping(value = "/cars/add")
+    public String addCar(@Valid @ModelAttribute("car") Car car, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("users", userService.findAllUsers());
             return "addCar";
         }
         carService.save(car);
         return "redirect:/cars";
+    }
+
+    @PostMapping(value = "/phones/add")
+    public String addPhone(@Valid @ModelAttribute("phone") Phone phone, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("users", userService.findAllUsers());
+            return "addPhone";
+        }
+        phoneService.save(phone);
+        return "redirect:/phones";
+    }
+
+    @PostMapping(value = "/users/add")
+    public String addUser(@Valid @ModelAttribute("user") User user, BindingResult result) {
+        if (result.hasErrors()) {
+            return "addUser";
+        }
+
+        userService.save(user);
+        return "redirect:/users";
     }
 
     @RequestMapping(value = "/cars/delete/{id}", method = RequestMethod.POST)
@@ -185,4 +187,61 @@ public class MainController {
         return "redirect:/cars";
     }
 
+
+    @RequestMapping(value = "/users/edit/{id}", method = RequestMethod.GET)
+    public String editUserPage(@PathVariable("id") int id, Model model) {
+        model.addAttribute("user", userService.findUserById(id));
+        return "editUser";
+    }
+
+    @PostMapping(value = "/users/edit/{id}")
+    public String editUser(@PathVariable("id") int id, @Valid @ModelAttribute("user") User user,
+                           BindingResult result) {
+        if (result.hasErrors()) {
+            user.setId(id);
+            return "editUser";
+        }
+
+        userService.save(user);
+        return "redirect:/users";
+    }
+
+    @RequestMapping(value = "/cars/edit/{id}", method = RequestMethod.GET)
+    public String carUserPage(@PathVariable("id") int id, Model model) {
+        model.addAttribute("car", carService.findCarById(id));
+        model.addAttribute("users", userService.findAllUsers());
+        return "editCar";
+    }
+
+    @PostMapping(value = "/cars/edit/{id}")
+    public String editUser(@PathVariable("id") int id, @Valid @ModelAttribute("car") Car car,
+                           BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            car.setId(id);
+            model.addAttribute("users", userService.findAllUsers());
+            return "editCar";
+        }
+
+        carService.save(car);
+        return "redirect:/cars";
+    }
+
+    @RequestMapping(value = "/phones/edit/{id}", method = RequestMethod.GET)
+    public String phoneUserPage(@PathVariable("id") int id, Model model) {
+        model.addAttribute("phone", phoneService.findPhoneById(id));
+        model.addAttribute("users", userService.findAllUsers());
+        return "editPhone";
+    }
+
+    @PostMapping(value = "/phones/edit/{id}")
+    public String editUser(@PathVariable("id") int id, @Valid @ModelAttribute("phone") Phone phone,
+                           BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            phone.setId(id);
+            model.addAttribute("users", userService.findAllUsers());
+            return "editPhone";
+        }
+        phoneService.save(phone);
+        return "redirect:/phones";
+    }
 }

@@ -1,8 +1,8 @@
 package com.app.crud.service;
 
 import com.app.crud.model.Car;
-import com.app.crud.model.User;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 
 public interface CarService {

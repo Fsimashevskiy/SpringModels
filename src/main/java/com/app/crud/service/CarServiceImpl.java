@@ -1,7 +1,6 @@
 package com.app.crud.service;
 
 import com.app.crud.model.Car;
-import com.app.crud.model.User;
 import com.app.crud.repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
